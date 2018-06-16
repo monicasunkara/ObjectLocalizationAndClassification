@@ -5,12 +5,13 @@ import numpy as np
 import torchvision.transforms as transforms
 import os
 import voc_annotations_parser as voc
+import pickle
 
 class ValDataset:
 
         def __init__(self, transform = transforms.ToTensor()):
                 rootdir = '/home/ms3459/DKLData/ILSVRC'
-                IMAGE_SET_PATH = os.path.join(rootdir, 'ImageSets/CLS-LOC/val3.txt')
+                IMAGE_SET_PATH = os.path.join(rootdir, 'ImageSets/CLS-LOC/val.txt')
                 # path to the voc annotation folder
 
                 ANNOTATIONS_PATH = os.path.join(rootdir, 'Annotations/CLS-LOC/val')
@@ -18,9 +19,15 @@ class ValDataset:
                 IMAGE_PATH = os.path.join(rootdir, 'Data/CLS-LOC/val')
                 self.dirlist = [ item for item in os.listdir(os.path.join(rootdir, 'Data/CLS-LOC/train')) if os.path.isdir(os.path.join(rootdir, 'Data/CLS-LOC/train', item)) ]
                 #print(self.dirlist)
-		parser = voc.VocAnnotationsParser(IMAGE_PATH, IMAGE_SET_PATH, ANNOTATIONS_PATH)
-                self.annon_list = parser.annotation_line_list
-                '''
+		#parser = voc.VocAnnotationsParser(IMAGE_PATH, IMAGE_SET_PATH, ANNOTATIONS_PATH)
+                #self.annon_list = parser.annotation_line_list
+                #with open('/home/ms3459/DKL/Alllabelsval.pkl', 'wb') as f:
+                #       mylist = parser.annotation_line_list
+                #       pickle.dump(mylist, f)
+                with open('/home/ms3459/DKL/Alllabelsval.pkl', 'rb') as f:
+                        self.annon_list = pickle.load(f)
+		#print(len(self.annon_list))
+		'''
 		#annon_np = np.array(self.annon_list)
                 #print(type(annon_np.min(axis=0)))
                 #print(annon_np.min(axis=0))
@@ -54,7 +61,7 @@ class ValDataset:
 			#print(image_path)
 			#print(type(img))
                         #printt(img)
-                        target = [self.dirlist.index(annotation['foldername']), annotation['xmin'], annotation['ymin'], annotation['xmax'], annotation['ymax']]
+                        target = np.array([self.dirlist.index(annotation['foldername']), annotation['xmin'], annotation['ymin'], annotation['xmax'], annotation['ymax']])
 			#print(img)
 			#print(target)
                         return img, target

@@ -1,10 +1,12 @@
 import torch
 from PIL import Image
+from random import shuffle
 import json
 import numpy as np
 import torchvision.transforms as transforms
 import os
 import voc_annotations_parser as voc 
+import pickle
 
 class MetaDataset:
 
@@ -16,11 +18,22 @@ class MetaDataset:
 		# Image path
 		IMAGE_PATH = os.path.join(rootdir, 'Data/CLS-LOC/train')
 		self.dirlist = [ item for item in os.listdir(IMAGE_PATH) if os.path.isdir(os.path.join(IMAGE_PATH, item)) ]
-		parser = voc.VocAnnotationsParser(IMAGE_PATH, IMAGE_SET_PATH, ANNOTATIONS_PATH)
-		self.annon_list = parser.annotation_line_list
+		#parser = voc.VocAnnotationsParser(IMAGE_PATH, IMAGE_SET_PATH, ANNOTATIONS_PATH)
+		#with open('/home/ms3459/DKL/Alllabels.pkl', 'wb') as f:
+		#	mylist = parser.annotation_line_list
+		#	pickle.dump(mylist, f)
+		with open('/home/ms3459/DKL/Alllabels.pkl', 'rb') as f:
+			self.annon_list = pickle.load(f)
+		print(len(self.annon_list))
+		#listshuff = self.annon_list
+		shuffle(self.annon_list)
+		print(len(self.annon_list))
+		#self.annon_list = parser.annotation_line_list
 		#annon_np = np.array(self.annon_list)
 		#print(type(annon_np.min(axis=0)))
 		#print(annon_np.min(axis=0))
+		#print(self.annon_list)
+		
 		a_list = [[d['xmin'], d['ymin'], d['xmax'], d['ymax']] for d in self.annon_list]
 		#print(a_list)
 		annon_np = np.array(a_list).astype(np.float64)
@@ -43,9 +56,9 @@ class MetaDataset:
         	image_path = annotation['img_full_path']
 		if os.path.exists(image_path):
         		img = Image.open(image_path).convert('RGB')
-        		img = self.transform(img)
+			img = self.transform(img)
 			#print(type(img))
-			#printt(img)
+			#print(img)
         		target = np.array([self.dirlist.index(annotation['foldername']), self.norm_list[i][0], self.norm_list[i][1], self.norm_list[i][2], self.norm_list[i][3]])
         		return img, target
 		print("No path found: " + str(image_path))
